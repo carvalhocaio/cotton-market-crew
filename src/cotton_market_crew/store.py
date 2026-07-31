@@ -15,9 +15,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from cotton_market_crew.conversao import arroba_reais_para_cents_libra
-from cotton_market_crew.dominio import (
-Basis, Cambio, CotacaoFutura, IndicadorFisico
-)
+from cotton_market_crew.dominio import Basis, Cambio, CotacaoFutura, IndicadorFisico
 
 DIRETORIO_DADOS_PADRAO = Path(__file__).resolve().parents[2] / "dados"
 
@@ -52,7 +50,7 @@ class MercadoStore:
             IndicadorFisico(
                 data=date.fromisoformat(linha["data"]),
                 regiao=linha["regiao"],
-                reais_por_arroba=Decimal(linha["reais_por_arroba"])
+                reais_por_arroba=Decimal(linha["reais_por_arroba"]),
             )
             for linha in linhas
         ]
@@ -73,14 +71,15 @@ class MercadoStore:
         return [
             Cambio(
                 data=date.fromisoformat(linha["data"]),
-                ptax_venda=Decimal(linha["ptax_venda"])
+                ptax_venda=Decimal(linha["ptax_venda"]),
             )
             for linha in linhas
         ]
 
     def listar_indicadores(
-            self, regiao: str | None = None,
-    )-> list[IndicadorFisico]:
+        self,
+        regiao: str | None = None,
+    ) -> list[IndicadorFisico]:
         if regiao is None:
             return list(self._indicadores)
         return [i for i in self._indicadores if i.regiao == regiao]

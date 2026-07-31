@@ -5,13 +5,11 @@ import pytest
 
 from cotton_market_crew.dominio import (
     Basis,
+    BasisInvalidoError,
     Cambio,
     CotacaoFutura,
-    IndicadorFisico,
-)
-from cotton_market_crew.exceptions.dominio import (
-    BasisInvalidoError,
     CotacaoInvalidaError,
+    IndicadorFisico,
     IndicadorInvalidoError,
 )
 
@@ -42,8 +40,8 @@ class TestIndicadorFisico:
         with pytest.raises(IndicadorInvalidoError):
             IndicadorFisico(
                 data=date(2026, 7, 27),
-                regiao="SP",
-                reais_por_arroba=Decimal("158.50"),
+                regiao="MT",
+                reais_por_arroba=Decimal("-1.00"),
             )
 
     def test_rejeita_regiao_desconhecida(self):

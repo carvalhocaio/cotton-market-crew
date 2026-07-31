@@ -9,12 +9,22 @@ from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 
-from cotton_market_crew.exceptions.dominio import (
-    BasisInvalidoError,
-    CotacaoInvalidaError,
-    IndicadorInvalidoError,
-    MercadoAlgodaoError,
-)
+
+class MercadoAlgodaoError(Exception):
+    """Erro base do domínio de mercado de algodão."""
+
+
+class IndicadorInvalidoError(MercadoAlgodaoError):
+    """Levantado quando um indicador físico não passa na validação."""
+
+
+class CotacaoInvalidaError(MercadoAlgodaoError):
+    """Levantado quando uma cotação futura ou câmbio é inválido."""
+
+
+class BasisInvalidoError(MercadoAlgodaoError):
+    """Levantado quando um basis não passa na validação."""
+
 
 REGIOES_VALIDAS = frozenset({"MT", "BA", "GO"})
 
@@ -22,7 +32,7 @@ REGIOES_VALIDAS = frozenset({"MT", "BA", "GO"})
 def _validar_regiao(regiao: str, excecao: type[MercadoAlgodaoError]) -> None:
     if regiao not in REGIOES_VALIDAS:
         regioes = ", ".join(sorted(REGIOES_VALIDAS))
-        raise excecao(f"Região '{regiao} inválida. Use uma de: {regioes}.")
+        raise excecao(f"Região '{regiao}' inválida. Use uma de: {regioes}.")
 
 
 def _validar_positivo(

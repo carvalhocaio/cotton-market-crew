@@ -9,7 +9,7 @@ from cotton_market_crew.dominio import (
     CotacaoFutura,
     IndicadorFisico,
 )
-from cotton_market_crew.excecoes import (
+from cotton_market_crew.exceptions.dominio import (
     BasisInvalidoError,
     CotacaoInvalidaError,
     IndicadorInvalidoError,

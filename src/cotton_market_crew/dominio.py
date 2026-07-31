@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 
-from cotton_market_crew.excecoes import (
+from cotton_market_crew.exceptions.dominio import (
     BasisInvalidoError,
     CotacaoInvalidaError,
     IndicadorInvalidoError,

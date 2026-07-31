@@ -46,6 +46,14 @@ class TestIndicadorFisico:
                 reais_por_arroba=Decimal("158.50"),
             )
 
+    def test_rejeita_regiao_desconhecida(self):
+        with pytest.raises(IndicadorInvalidoError):
+            IndicadorFisico(
+                data=date(2026, 7, 27),
+                regiao="SP",
+                reais_por_arroba=Decimal("158.50"),
+            )
+
 
 class TestCotacaoFutura:
     def test_cria_cotacao_valida(self):

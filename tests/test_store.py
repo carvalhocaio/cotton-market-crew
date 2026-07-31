@@ -87,3 +87,21 @@ class TestMercadoStore:
     def test_diretorio_inexistente_levanta_erro(self, tmp_path: Path):
         with pytest.raises(MercadoStoreError):
             MercadoStore(tmp_path / "nao_existe")
+
+
+class TestMercadoStoreComDadosDoRepositorio:
+    """Testes de integração contra os CSVs versionados em `dados/`."""
+
+    def test_carrega_dados_padrao_do_repositorio(self):
+        store = MercadoStore()
+
+        assert len(store.listar_indicadores()) > 0
+        assert len(store.listar_cotacoes_futuras()) > 0
+        assert len(store.listar_cambios()) > 0
+
+    def test_calcula_basis_para_cada_regiao_configurada(self):
+        store = MercadoStore()
+
+        for regiao in ("MT", "BA", "GO"):
+            basis = store.calcular_basis(regiao)
+            assert basis.regiao == regiao

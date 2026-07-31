@@ -2,13 +2,16 @@ from datetime import date
 from decimal import Decimal
 
 import pytest
+
 from cotton_market_crew.dominio import (
     Basis,
-    BasisInvalidoError,
     Cambio,
     CotacaoFutura,
-    CotacaoInvalidaError,
     IndicadorFisico,
+)
+from cotton_market_crew.excecoes import (
+    BasisInvalidoError,
+    CotacaoInvalidaError,
     IndicadorInvalidoError,
 )
 

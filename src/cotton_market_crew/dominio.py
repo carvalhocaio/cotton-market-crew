@@ -4,6 +4,7 @@ Value objects imutáveis (frozen dataclasses) que representam os fatos de
 mercado usados no boletim semanal. Validação acontece na fronteira de
 construção do objeto: se o dataclass foi criado, ele é válido.
 """
+
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -57,9 +58,8 @@ class CotacaoFutura:
     fonte: str = "ICE Futures US #2"
 
     def __post_init__(self) -> None:
-        _validar_positivo(
-            self.cents_por_libra, "cents_por_libra", CotacaoInvalidaError
-        )
+        _validar_positivo(self.cents_por_libra, "cents_por_libra", CotacaoInvalidaError)
+
 
 @dataclass(frozen=True, slots=True)
 class Cambio:

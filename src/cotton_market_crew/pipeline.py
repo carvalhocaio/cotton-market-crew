@@ -12,9 +12,16 @@ faz).
 
 Desde o ADR-004, os analistas físicos recebem o câmbio bruto (PTAX), não
 o basis pré-calculado — precisam converter usando a ferramenta do Bloco 4.
-`MercadoStore.calcular_basis` continua existindo e é usado como fonte de
-verdade independente para o guardrail do Bloco 5, não é mais passado
-direto pro prompt.
+`MercadoStore.calcular_basis` continua existindo e agora alimenta o
+guardrail numérico (Bloco 5): a mesma fonte de verdade usada para montar
+o prompt original nas versões anteriores agora valida a saída do agente,
+em vez de ser entregue pronta.
+
+Guardrails: as 3 tasks físicas ganham checagem numérica contra o basis
+calculado pelo Python; a task de consolidação ganha checagem de
+compliance. A task de mercado externo fica sem guardrail — sua saída não
+tem um valor numérico contínuo comparável contra o MercadoStore (ver
+ADR-005).
 """
 
 from crewai import Crew, Process
@@ -23,6 +30,10 @@ from cotton_market_crew.agentes import (
     criar_analista_fisico,
     criar_analista_mercado_externo,
     criar_estrategista,
+)
+from cotton_market_crew.guardrails import (
+    criar_guardrail_basis_numerico,
+    guardrail_compliance,
 )
 from cotton_market_crew.store import MercadoStore
 from cotton_market_crew.tasks import (
@@ -36,7 +47,7 @@ REGIOES = ("MT", "BA", "GO")
 
 def montar_pipeline(store: MercadoStore, llm: object) -> Crew:
     """Monta a Crew: analistas regionais + mercado externo em paralelo,
-    estrategista consolidando o resultado."""
+    estrategista consolidando o resultado, com guardrails determinísticos."""
     agentes = []
     tasks_upstream = []
 
@@ -46,9 +57,11 @@ def montar_pipeline(store: MercadoStore, llm: object) -> Crew:
     for regiao in REGIOES:
         agente = criar_analista_fisico(llm)
         indicador = store.ultimo_indicador(regiao)
+        basis_esperado = store.calcular_basis(regiao).valor_cents_por_libra
 
         task = criar_task_analise_fisico(agente, indicador, cotacao, cambio)
         task.async_execution = True
+        task.guardrail = criar_guardrail_basis_numerico(basis_esperado)
 
         agentes.append(agente)
         tasks_upstream.append(task)
@@ -62,6 +75,7 @@ def montar_pipeline(store: MercadoStore, llm: object) -> Crew:
 
     estrategista = criar_estrategista(llm)
     task_consolidacao = criar_task_consolidacao(estrategista, tasks_upstream)
+    task_consolidacao.guardrail = guardrail_compliance
     agentes.append(estrategista)
 
     return Crew(

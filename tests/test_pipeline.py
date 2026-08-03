@@ -1,6 +1,8 @@
-from cotton_market_crew.pipeline import montar_pipeline
 from crewai import Crew, Process
+from crewai.tasks.task_output import TaskOutput
 
+from cotton_market_crew.esquemas import AnaliseConsolidada, AnaliseFisico
+from cotton_market_crew.pipeline import montar_pipeline
 from cotton_market_crew.store import MercadoStore
 
 
@@ -50,3 +52,48 @@ class TestMontarPipeline:
         crew = montar_pipeline(store, llm_falso)
 
         assert crew.process == Process.sequential
+
+
+class TestMontarPipelineComGuardrails:
+    def test_tasks_fisico_tem_guardrail_numerico_correto(self, llm_falso):
+        store = MercadoStore()
+        crew = montar_pipeline(store, llm_falso)
+
+        for indice, regiao in enumerate(("MT", "BA", "GO")):
+            task = crew.tasks[indice]
+            basis_esperado = store.calcular_basis(regiao).valor_cents_por_libra
+
+            output = TaskOutput(
+                description="d",
+                agent="a",
+                pydantic=AnaliseFisico(
+                    regiao=regiao,
+                    tendencia="alta",
+                    basis_cents_lb=float(basis_esperado),
+                    comentario="Comentário de teste com tamanho suficiente.",
+                ),
+            )
+
+            sucesso, _ = task.guardrail(output)
+
+            assert sucesso is True
+
+    def test_task_consolidacao_tem_guardrail_compliance(self, llm_falso):
+        store = MercadoStore()
+        crew = montar_pipeline(store, llm_falso)
+        task_consolidacao = crew.tasks[-1]
+
+        output = TaskOutput(
+            description="d",
+            agent="a",
+            pydantic=AnaliseConsolidada(
+                tendencia_geral="alta",
+                regiao_destaque="MT",
+                basis_medio_cents_lb=15.0,
+                comentario_estrategico="Recomendamos comprar imediatamente.",
+            ),
+        )
+
+        sucesso, _ = task_consolidacao.guardrail(output)
+
+        assert sucesso is False

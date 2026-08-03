@@ -49,3 +49,21 @@ reaproveitada por `test_agentes.py` e `test_tasks.py`.
   intencionalmente fora do `make check`.
 - A pergunta original do roadmap ("o jargão no backstory muda a saída de
   verdade?") continua em aberto — decidir se/quando rodar esse experimento.
+
+## Achado do experimento (2026-08-03, gemini/gemini-2.5-flash)
+
+Rodada única por agente, mesma Task, `temperature=0.2`:
+
+- **Conteúdo**: tendência e argumento do comentário saíram equivalentes
+  entre o agente calibrado (jargão no backstory) e o agente de controle
+  (backstory genérico em inglês). O jargão técnico usado pelo agente
+  genérico veio da própria `Task.description` (fatos injetados), não do
+  backstory — sugerindo que o que mais influencia terminologia correta é
+  o conteúdo da task, não necessariamente o backstory do agente.
+- **Custo**: o agente calibrado fechou em 1 chamada (856 tokens); o
+  genérico precisou de 2 (1656 tokens) — consistente com um retry de
+  `output_pydantic` por falha de formato na primeira tentativa.
+- **Limitação**: n=1 por agente, temperatura não-zero. Não é evidência
+  estatística, é um dado exploratório único. Backstory calibrado
+  parece reduzir fricção de formatação mais do que mudar a análise em si
+  — mas isso precisaria de repetição para virar afirmação confiável.

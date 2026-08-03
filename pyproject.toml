@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "crewai>=1.6.1",
+    "crewai[google-genai]>=1.6.1",
     "pydantic>=2.13.4",
 ]
 

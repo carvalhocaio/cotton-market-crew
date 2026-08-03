@@ -49,3 +49,42 @@ def criar_guardrail_basis_numerico(
         return True, analise
 
     return guardrail
+
+
+FRASES_PROIBIDAS = (
+    "recomendamos comprar",
+    "recomendamos vender",
+    "recomendo comprar",
+    "recomendo vender",
+    "compre agora",
+    "venda agora",
+    "hora de comprar",
+    "hora de vender",
+    "garantido",
+    "garantia de valorização",
+)
+
+
+def guardrail_compliance(output: TaskOutput) -> tuple[bool, Any]:
+    """Rejeita linguagem de recomendação de compra/venda ou de garantia.
+
+    Bloqueia frases, não palavras soltas — "venda" sozinha é vocabulário
+    legítimo do domínio (ex.: "câmbio de venda"). Limitação conhecida:
+    um LLM pode driblar reformulando a recomendação de um jeito não
+    coberto pela lista; ver ADR-005 para a ressalva completa.
+    """
+    analise = output.pydantic
+    if analise is None:
+        return False, "Saída sem output_pydantic; guardrail não pode validar."
+
+    comentario = analise.comentario_estrategico.lower()
+
+    for frase in FRASES_PROIBIDAS:
+        if frase in comentario:
+            return False, (
+                f"Comentário contém linguagem de recomendação/garantia "
+                f'("{frase}"), não permitida no boletim. Reescreva '
+                f"descrevendo o risco, sem recomendar ação."
+            )
+
+    return True, analise

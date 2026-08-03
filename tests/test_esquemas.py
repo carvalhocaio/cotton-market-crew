@@ -1,65 +1,66 @@
-# tests/test_esquemas.py
 import pytest
 from pydantic import ValidationError
 
-from cotton_market_crew.esquemas import AnaliseFisico
+from cotton_market_crew.esquemas import AnaliseConsolidada
 
 
-class TestAnaliseFisico:
-    def test_cria_analise_valida(self):
-        analise = AnaliseFisico(
-            regiao="MT",
-            tendencia="alta",
-            basis_cents_lb=18.37,
-            comentario="Basis positivo puxado por demanda firme na região.",
+class TestAnaliseConsolidada:
+    def test_cria_analise_consolidada_valida(self):
+        analise = AnaliseConsolidada(
+            tendencia_geral="alta",
+            regiao_destaque="MT",
+            basis_medio_cents_lb=15.20,
+            comentario_estrategico=(
+                "Basis firme nas três praças reforça viés de alta para o "
+                "físico no curto prazo, com destaque para Mato Grosso."
+            ),
         )
 
-        assert analise.regiao == "MT"
-        assert analise.tendencia == "alta"
-        assert analise.basis_cents_lb == 18.37
-
-    def test_rejeita_regiao_fora_do_dominio(self):
-        with pytest.raises(ValidationError):
-            AnaliseFisico(
-                regiao="SP",
-                tendencia="alta",
-                basis_cents_lb=18.37,
-                comentario="Basis positivo puxado por demanda firme na região.",
-            )
+        assert analise.tendencia_geral == "alta"
+        assert analise.regiao_destaque == "MT"
 
     def test_rejeita_tendencia_fora_do_dominio(self):
         with pytest.raises(ValidationError):
-            AnaliseFisico(
-                regiao="MT",
-                tendencia="explosiva",
-                basis_cents_lb=18.37,
-                comentario="Basis positivo puxado por demanda firme na região.",
+            AnaliseConsolidada(
+                tendencia_geral="explosiva",
+                regiao_destaque="MT",
+                basis_medio_cents_lb=15.20,
+                comentario_estrategico=(
+                    "Basis firme nas três praças reforça viés de alta para "
+                    "o físico no curto prazo."
+                ),
+            )
+
+    def test_rejeita_regiao_destaque_fora_do_dominio(self):
+        with pytest.raises(ValidationError):
+            AnaliseConsolidada(
+                tendencia_geral="alta",
+                regiao_destaque="SP",
+                basis_medio_cents_lb=15.20,
+                comentario_estrategico=(
+                    "Basis firme nas três praças reforça viés de alta para "
+                    "o físico no curto prazo."
+                ),
             )
 
     def test_rejeita_comentario_curto_demais(self):
         with pytest.raises(ValidationError):
-            AnaliseFisico(
-                regiao="MT",
-                tendencia="alta",
-                basis_cents_lb=18.37,
-                comentario="ok",
+            AnaliseConsolidada(
+                tendencia_geral="alta",
+                regiao_destaque="MT",
+                basis_medio_cents_lb=15.20,
+                comentario_estrategico="Alta.",
             )
 
     def test_rejeita_campo_extra_nao_declarado(self):
         with pytest.raises(ValidationError):
-            AnaliseFisico(
-                regiao="MT",
-                tendencia="alta",
-                basis_cents_lb=18.37,
-                comentario="Basis positivo puxado por demanda firme na região.",
-                confianca=0.9,
-            )
-
-    def test_rejeita_basis_com_tipo_invalido(self):
-        with pytest.raises(ValidationError):
-            AnaliseFisico(
-                regiao="MT",
-                tendencia="alta",
-                basis_cents_lb="dezoito",
-                comentario="Basis positivo puxado por demanda firme na região.",
+            AnaliseConsolidada(
+                tendencia_geral="alta",
+                regiao_destaque="MT",
+                basis_medio_cents_lb=15.20,
+                comentario_estrategico=(
+                    "Basis firme nas três praças reforça viés de alta para "
+                    "o físico no curto prazo."
+                ),
+                recomendacao="comprar",
             )

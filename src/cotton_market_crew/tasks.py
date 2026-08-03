@@ -9,7 +9,11 @@ pipeline.
 from crewai import Agent, Task
 
 from cotton_market_crew.dominio import Basis, Cambio, CotacaoFutura, IndicadorFisico
-from cotton_market_crew.esquemas import AnaliseFisico, AnaliseMercadoExterno
+from cotton_market_crew.esquemas import (
+    AnaliseConsolidada,
+    AnaliseFisico,
+    AnaliseMercadoExterno,
+)
 
 
 def criar_task_analise_fisico(
@@ -69,4 +73,34 @@ def criar_task_analise_mercado_externo(
         ),
         agent=agente,
         output_pydantic=AnaliseMercadoExterno,
+    )
+
+
+def criar_task_consolidacao(agente: Agent, tasks_upstream: list[Task]) -> Task:
+    """Monta a Task do estrategista, consolidando as análises upstream.
+
+    O CrewAI injeta a saída de cada Task em `tasks_upstream` no prompt via
+    `context` — não repetimos números aqui, só instruímos o que fazer com
+    o que já foi produzido pelos analistas.
+    """
+    description = (
+        "Com base nas análises de mercado físico e mercado externo "
+        "produzidas pelos analistas, consolide uma leitura de risco única "
+        "para o boletim semanal. Aponte a tendência geral, a região que "
+        "mais chama atenção e calcule o basis médio entre as regiões "
+        "analisadas. Escreva um comentário estratégico que resolva "
+        "eventuais sinais conflitantes entre o físico e o externo, sem "
+        "recomendar compra ou venda — apenas descreva o risco."
+    )
+
+    return Task(
+        description=description,
+        expected_output=(
+            "Uma análise consolidada contendo a tendência geral, a região "
+            "de destaque, o basis médio em cents/lb e um comentário "
+            "estratégico."
+        ),
+        agent=agente,
+        context=tasks_upstream,
+        output_pydantic=AnaliseConsolidada,
     )

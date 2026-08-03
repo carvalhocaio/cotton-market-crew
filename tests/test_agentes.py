@@ -1,6 +1,10 @@
 from crewai import Agent
 
-from cotton_market_crew.agentes import criar_analista_fisico
+from cotton_market_crew.agentes import (
+    criar_analista_fisico,
+    criar_analista_mercado_externo,
+    criar_estrategista,
+)
 
 
 class TestCriarAnalistaFisico:
@@ -36,3 +40,61 @@ class TestCriarAnalistaFisico:
         agente = criar_analista_fisico(llm=llm_falso)
 
         assert agente.llm is llm_falso
+
+
+class TestCriarAnalistaMercadoExterno:
+    def test_retorna_instancia_de_agent(self, llm_falso):
+        agente = criar_analista_mercado_externo(llm=llm_falso)
+
+        assert isinstance(agente, Agent)
+
+    def test_role_reflete_o_dominio(self, llm_falso):
+        agente = criar_analista_mercado_externo(llm=llm_falso)
+
+        assert "externo" in agente.role.lower()
+        assert "algodão" in agente.role.lower()
+
+    def test_goal_menciona_futuro_e_cambio(self, llm_falso):
+        agente = criar_analista_mercado_externo(llm=llm_falso)
+
+        assert "futuro" in agente.goal.lower()
+        assert "câmbio" in agente.goal.lower()
+
+    def test_backstory_usa_jargao_do_dominio(self, llm_falso):
+        agente = criar_analista_mercado_externo(llm=llm_falso)
+
+        for termo in ("ice", "ptax", "contrato"):
+            assert termo in agente.backstory.lower()
+
+    def test_nao_permite_delegacao(self, llm_falso):
+        agente = criar_analista_mercado_externo(llm=llm_falso)
+
+        assert agente.allow_delegation is False
+
+
+class TestCriarEstrategista:
+    def test_retorna_instancia_de_agent(self, llm_falso):
+        agente = criar_estrategista(llm=llm_falso)
+
+        assert isinstance(agente, Agent)
+
+    def test_role_reflete_consolidacao(self, llm_falso):
+        agente = criar_estrategista(llm=llm_falso)
+
+        assert "estrategista" in agente.role.lower()
+
+    def test_goal_menciona_consolidacao_e_risco(self, llm_falso):
+        agente = criar_estrategista(llm=llm_falso)
+
+        assert "consolidar" in agente.goal.lower()
+        assert "risco" in agente.goal.lower()
+
+    def test_backstory_usa_jargao_da_mesa(self, llm_falso):
+        agente = criar_estrategista(llm=llm_falso)
+
+        assert "boletim" in agente.backstory.lower()
+
+    def test_nao_permite_delegacao(self, llm_falso):
+        agente = criar_estrategista(llm=llm_falso)
+
+        assert agente.allow_delegation is False

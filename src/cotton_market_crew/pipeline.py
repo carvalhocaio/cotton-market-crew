@@ -9,6 +9,12 @@ assíncronas pendentes antes de rodar a próxima task síncrona.
 `async_execution` é setado aqui, não nas fábricas de `tasks.py` — é uma
 decisão de orquestração (como a task roda), não de conteúdo (o que ela
 faz).
+
+Desde o ADR-004, os analistas físicos recebem o câmbio bruto (PTAX), não
+o basis pré-calculado — precisam converter usando a ferramenta do Bloco 4.
+`MercadoStore.calcular_basis` continua existindo e é usado como fonte de
+verdade independente para o guardrail do Bloco 5, não é mais passado
+direto pro prompt.
 """
 
 from crewai import Crew, Process
@@ -34,22 +40,23 @@ def montar_pipeline(store: MercadoStore, llm: object) -> Crew:
     agentes = []
     tasks_upstream = []
 
+    cotacao = store.ultima_cotacao_futura()
+    cambio = store.ultimo_cambio()
+
     for regiao in REGIOES:
         agente = criar_analista_fisico(llm)
         indicador = store.ultimo_indicador(regiao)
-        cotacao = store.ultima_cotacao_futura()
-        basis = store.calcular_basis(regiao)
 
-        task = criar_task_analise_fisico(agente, indicador, cotacao, basis)
+        task = criar_task_analise_fisico(agente, indicador, cotacao, cambio)
         task.async_execution = True
 
         agentes.append(agente)
         tasks_upstream.append(task)
 
     analista_externo = criar_analista_mercado_externo(llm)
-    cotacao = store.ultima_cotacao_futura()
-    cambio = store.ultimo_cambio()
-    task_externo = criar_task_analise_mercado_externo(analista_externo, cotacao, cambio)
+    task_externo = criar_task_analise_mercado_externo(
+        analista_externo, cotacao, cambio
+    )
     task_externo.async_execution = True
 
     agentes.append(analista_externo)

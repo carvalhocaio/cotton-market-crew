@@ -8,8 +8,8 @@ pipeline.
 
 from crewai import Agent, Task
 
-from cotton_market_crew.dominio import Basis, CotacaoFutura, IndicadorFisico
-from cotton_market_crew.esquemas import AnaliseFisico
+from cotton_market_crew.dominio import Basis, Cambio, CotacaoFutura, IndicadorFisico
+from cotton_market_crew.esquemas import AnaliseFisico, AnaliseMercadoExterno
 
 
 def criar_task_analise_fisico(
@@ -41,4 +41,32 @@ def criar_task_analise_fisico(
         ),
         agent=agente,
         output_pydantic=AnaliseFisico,
+    )
+
+
+def criar_task_analise_mercado_externo(
+    agente: Agent, cotacao: CotacaoFutura, cambio: Cambio
+) -> Task:
+    """Monta a Task de análise do mercado externo (futuro ICE + câmbio)."""
+    description = (
+        f"Analise o mercado externo de algodão com base nos seguintes "
+        f"fatos de mercado, referentes a {cotacao.data.isoformat()}:\n\n"
+        f"- Cotação futura ({cotacao.contrato}): "
+        f"{cotacao.cents_por_libra:.2f} cents/lb (fonte: {cotacao.fonte})\n"
+        f"- Câmbio PTAX venda: R$ {cambio.ptax_venda:.4f}\n\n"
+        "Com base nesses números, determine a tendência do contrato "
+        "futuro (alta, queda ou estável) e se o câmbio atual é favorável, "
+        "desfavorável ou neutro para a competitividade do algodão "
+        "brasileiro exportado. Escreva um comentário justificando a "
+        "leitura. Não invente números que não estejam listados acima."
+    )
+
+    return Task(
+        description=description,
+        expected_output=(
+            "Uma análise estruturada contendo a tendência do futuro, a "
+            "pressão cambial e um comentário justificando a leitura."
+        ),
+        agent=agente,
+        output_pydantic=AnaliseMercadoExterno,
     )

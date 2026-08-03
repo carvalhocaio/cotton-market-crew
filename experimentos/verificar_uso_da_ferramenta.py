@@ -1,4 +1,3 @@
-# experimentos/verificar_uso_da_ferramenta.py
 """Experimento exploratório: o agente usa a ferramenta de conversão de fato?
 
 Evidência: comparar o basis que o agente devolveu contra o valor que

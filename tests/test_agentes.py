@@ -41,6 +41,15 @@ class TestCriarAnalistaFisico:
 
         assert agente.llm is llm_falso
 
+    def test_tem_a_ferramenta_de_conversao(self, llm_falso):
+        from cotton_market_crew.ferramentas import (
+            converter_arroba_para_cents_libra_tool,
+        )
+
+        agente = criar_analista_fisico(llm=llm_falso)
+
+        assert converter_arroba_para_cents_libra_tool in agente.tools
+
 
 class TestCriarAnalistaMercadoExterno:
     def test_retorna_instancia_de_agent(self, llm_falso):

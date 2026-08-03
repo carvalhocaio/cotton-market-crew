@@ -8,6 +8,8 @@ modelo por trás.
 
 from crewai import Agent
 
+from cotton_market_crew.ferramentas import converter_arroba_para_cents_libra_tool
+
 
 def criar_analista_fisico(llm: object) -> Agent:
     """Cria o agente responsável por interpretar o mercado físico regional."""
@@ -21,11 +23,12 @@ def criar_analista_fisico(llm: object) -> Agent:
         backstory=(
             "Você acompanha o mercado físico de algodão brasileiro há anos, "
             "lendo o comportamento da arroba em praças como Mato Grosso, "
-            "Bahia e Goiás. Sabe interpretar o basis regional frente ao  "
+            "Bahia e Goiás. Sabe interpretar o basis regional frente ao "
             "futuro e reconhece como a disponibilidade de pluma pressiona "
             "o preço físico em cada praça."
         ),
         allow_delegation=False,
+        tools=[converter_arroba_para_cents_libra_tool],
         llm=llm,
     )
 

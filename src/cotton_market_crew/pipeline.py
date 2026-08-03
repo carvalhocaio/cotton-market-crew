@@ -54,9 +54,7 @@ def montar_pipeline(store: MercadoStore, llm: object) -> Crew:
         tasks_upstream.append(task)
 
     analista_externo = criar_analista_mercado_externo(llm)
-    task_externo = criar_task_analise_mercado_externo(
-        analista_externo, cotacao, cambio
-    )
+    task_externo = criar_task_analise_mercado_externo(analista_externo, cotacao, cambio)
     task_externo.async_execution = True
 
     agentes.append(analista_externo)

@@ -25,3 +25,14 @@ class AnaliseFisico(BaseModel):
     tendencia: Tendencia
     basis_cents_lb: float
     comentario: str = Field(min_length=10)
+
+
+class AnaliseConsolidada(BaseModel):
+    """Saída estruturada do agente estrategista, consolidando os analistas."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tendencia_geral: Tendencia
+    regiao_destaque: Regiao
+    basis_medio_cents_lb: float
+    comentario_estrategico: str = Field(min_length=30)

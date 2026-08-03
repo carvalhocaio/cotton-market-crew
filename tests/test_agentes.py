@@ -4,6 +4,7 @@ from crewai.llm import BaseLLM
 
 from cotton_market_crew.agentes import criar_analista_fisico
 
+
 class LLMFalso(BaseLLM):
     """Duplo de teste: satisfaz o contrato de BaseLLM sem chamar API real."""
 
@@ -13,9 +14,11 @@ class LLMFalso(BaseLLM):
     def call(self, *args, **kwargs):
         return "resposta falsa"
 
+
 @pytest.fixture
 def llm_falso() -> LLMFalso:
     return LLMFalso()
+
 
 class TestCriarAnalistaFisico:
     def test_retorna_instancia_de_agente(self, llm_falso: LLMFalso):

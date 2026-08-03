@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 Regiao = Literal["MT", "BA", "GO"]
 Tendencia = Literal["alta", "queda", "estavel"]
+PressaoCambial = Literal["favoravel", "desfavoravel", "neutra"]
 
 
 class AnaliseFisico(BaseModel):
@@ -36,3 +37,13 @@ class AnaliseConsolidada(BaseModel):
     regiao_destaque: Regiao
     basis_medio_cents_lb: float
     comentario_estrategico: str = Field(min_length=30)
+
+
+class AnaliseMercadoExterno(BaseModel):
+    """Saída estruturada do agente analista de mercado externo."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tendencia_futuro: Tendencia
+    pressao_cambial: PressaoCambial
+    comentario: str = Field(min_length=10)

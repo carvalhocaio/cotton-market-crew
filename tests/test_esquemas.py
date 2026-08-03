@@ -1,7 +1,11 @@
 import pytest
 from pydantic import ValidationError
 
-from cotton_market_crew.esquemas import AnaliseConsolidada, AnaliseFisico
+from cotton_market_crew.esquemas import (
+    AnaliseConsolidada,
+    AnaliseFisico,
+    AnaliseMercadoExterno,
+)
 
 
 class TestAnaliseFisico:
@@ -123,4 +127,61 @@ class TestAnaliseConsolidada:
                     "o físico no curto prazo."
                 ),
                 recomendacao="comprar",
+            )
+
+
+class TestAnaliseMercadoExterno:
+    def test_cria_analise_valida(self):
+        analise = AnaliseMercadoExterno(
+            tendencia_futuro="alta",
+            pressao_cambial="favoravel",
+            comentario=(
+                "Contrato futuro em alta e câmbio depreciado favorecem a "
+                "competitividade do algodão brasileiro no curto prazo."
+            ),
+        )
+
+        assert analise.tendencia_futuro == "alta"
+        assert analise.pressao_cambial == "favoravel"
+
+    def test_rejeita_tendencia_fora_do_dominio(self):
+        with pytest.raises(ValidationError):
+            AnaliseMercadoExterno(
+                tendencia_futuro="explosiva",
+                pressao_cambial="favoravel",
+                comentario=(
+                    "Contrato futuro em alta e câmbio depreciado favorecem "
+                    "a competitividade do algodão brasileiro."
+                ),
+            )
+
+    def test_rejeita_pressao_cambial_fora_do_dominio(self):
+        with pytest.raises(ValidationError):
+            AnaliseMercadoExterno(
+                tendencia_futuro="alta",
+                pressao_cambial="neutra-ish",
+                comentario=(
+                    "Contrato futuro em alta e câmbio depreciado favorecem "
+                    "a competitividade do algodão brasileiro."
+                ),
+            )
+
+    def test_rejeita_comentario_curto_demais(self):
+        with pytest.raises(ValidationError):
+            AnaliseMercadoExterno(
+                tendencia_futuro="alta",
+                pressao_cambial="favoravel",
+                comentario="Alta.",
+            )
+
+    def test_rejeita_campo_extra_nao_declarado(self):
+        with pytest.raises(ValidationError):
+            AnaliseMercadoExterno(
+                tendencia_futuro="alta",
+                pressao_cambial="favoravel",
+                comentario=(
+                    "Contrato futuro em alta e câmbio depreciado favorecem "
+                    "a competitividade do algodão brasileiro."
+                ),
+                fonte="ICE",
             )

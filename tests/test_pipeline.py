@@ -97,3 +97,87 @@ class TestMontarPipelineComGuardrails:
         sucesso, _ = task_consolidacao.guardrail(output)
 
         assert sucesso is False
+
+
+class TestMontarPipelineHierarquico:
+    def test_retorna_instancia_de_crew(self, llm_falso):
+        from cotton_market_crew.pipeline import montar_pipeline_hierarquico
+
+        store = MercadoStore()
+
+        crew = montar_pipeline_hierarquico(store, llm_falso)
+
+        assert isinstance(crew, Crew)
+
+    def test_processo_e_hierarquico(self, llm_falso):
+        from cotton_market_crew.pipeline import montar_pipeline_hierarquico
+
+        store = MercadoStore()
+
+        crew = montar_pipeline_hierarquico(store, llm_falso)
+
+        assert crew.process == Process.hierarchical
+
+    def test_tem_manager_agent_definido(self, llm_falso):
+        from cotton_market_crew.pipeline import montar_pipeline_hierarquico
+
+        store = MercadoStore()
+
+        crew = montar_pipeline_hierarquico(store, llm_falso)
+
+        assert crew.manager_agent is not None
+
+    def test_manager_agent_nao_esta_na_lista_de_agents(self, llm_falso):
+        from cotton_market_crew.pipeline import montar_pipeline_hierarquico
+
+        store = MercadoStore()
+
+        crew = montar_pipeline_hierarquico(store, llm_falso)
+
+        assert crew.manager_agent not in crew.agents
+
+    def test_manager_agent_sem_ferramentas(self, llm_falso):
+        from cotton_market_crew.pipeline import montar_pipeline_hierarquico
+
+        store = MercadoStore()
+
+        crew = montar_pipeline_hierarquico(store, llm_falso)
+
+        assert crew.manager_agent.tools == []
+
+    def test_cria_quatro_agentes_trabalhadores(self, llm_falso):
+        from cotton_market_crew.pipeline import montar_pipeline_hierarquico
+
+        store = MercadoStore()
+
+        crew = montar_pipeline_hierarquico(store, llm_falso)
+
+        assert len(crew.agents) == 4
+
+    def test_cria_cinco_tasks(self, llm_falso):
+        from cotton_market_crew.pipeline import montar_pipeline_hierarquico
+
+        store = MercadoStore()
+
+        crew = montar_pipeline_hierarquico(store, llm_falso)
+
+        assert len(crew.tasks) == 5
+
+    def test_tasks_fisico_mantem_guardrail_numerico(self, llm_falso):
+        from cotton_market_crew.pipeline import montar_pipeline_hierarquico
+
+        store = MercadoStore()
+
+        crew = montar_pipeline_hierarquico(store, llm_falso)
+
+        for task in crew.tasks[:3]:
+            assert task.guardrail is not None
+
+    def test_task_consolidacao_mantem_guardrail_compliance(self, llm_falso):
+        from cotton_market_crew.pipeline import montar_pipeline_hierarquico
+
+        store = MercadoStore()
+
+        crew = montar_pipeline_hierarquico(store, llm_falso)
+
+        assert crew.tasks[-1].guardrail is not None

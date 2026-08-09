@@ -1,7 +1,6 @@
 from datetime import date
 
 from cotton_market_crew.boletim import DISCLAIMER_PADRAO, renderizar_boletim
-
 from cotton_market_crew.esquemas import AnaliseConsolidada
 
 
